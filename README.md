@@ -1,21 +1,54 @@
+
 # NPS-OptimizeR
-An algorithmic approach to optimizing National Pension Service (NPS) benefits in Korea. This project provides tools for calculating optimal pension claim strategies, retirement planning, and maximizing lifetime benefits based on individual financial profiles and NPS regulations.
 
-## ♣️Git Convention
-prefix
-|type| what|
-|feat|구현|
-|fix|수정|
-|refac|리팩토링|
-|chore|패키지 구조 수정|
-|docs|문서 수정|
-|dependency|의존성|
+An algorithmic approach to optimizing National Pension Service (NPS) benefits in Korea.  
+This project provides tools for calculating optimal pension claim strategies, retirement planning, and maximizing lifetime benefits based on individual financial profiles and NPS regulations.
 
-Branch Naming
+---
+
+## ♣️ Git Convention
+
+### 📌 Prefix
+
+| Type        | Meaning              |
+|-------------|----------------------|
+| `feat`      | 구현 (Feature)        |
+| `fix`       | 수정 (Bug fix)        |
+| `refac`     | 리팩토링 (Refactoring)|
+| `chore`     | 패키지 구조 수정 (Chore) |
+| `docs`      | 문서 수정 (Docs)       |
+| `dependency`| 의존성 관련 (Dependency) |
+
+---
+
+### 📌 Branch Naming
+
+```
 <Prefix>/<Issue_Number>
+```
 
-Commit Message
+**Example:**  
+`feat/101`, `fix/42`
+
+---
+
+### 📌 Commit Message
+
+```
 [<Prefix>] <Description>
+```
 
-Pull Request
-title : [<Prefix>] <Description>
+**Example:**  
+`[docs] Update README with Git conventions`
+
+---
+
+### 📌 Pull Request Title
+
+```
+[<Prefix>] <Description>
+```
+
+**Example:**  
+`[refac] Simplify pension calculation logic`
+
