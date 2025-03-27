@@ -45,6 +45,9 @@ def habit_disease_adjustment(data):
     if data.get("hypertension") == 1: adj -= 2.0
     if data.get("diabetes") == 1: adj -= 2.5
     if data.get("cholesterol") == 1: adj -= 1.5
+    if data.get("cancer_history") == 1: adj -= 3.5
+    if data.get("cardio_disease") == 1: adj -= 2.0
+    if data.get("pneumonia_risk") == 1: adj -= 1.5
     return adj
 
 # -----------------------------
@@ -63,7 +66,10 @@ def predict_life_expectancy_korea(data):
             'exercise_level': 3,
             'hypertension': 0,
             'diabetes': 0,
-            'cholesterol': 1
+            'cholesterol': 1,
+            'cancer_history': 0,
+            'cardio_disease': 0,
+            'pneumonia_risk': 0
         }
     """
     # NHANES 생존 기반 보정
@@ -93,7 +99,10 @@ sample_input = {
     'exercise_level': 3,
     'hypertension': 0,
     'diabetes': 0,
-    'cholesterol': 1
+    'cholesterol': 1,
+    'cancer_history': 1,
+    'cardio_disease': 0,
+    'pneumonia_risk': 0
 }
 
 predicted_age = predict_life_expectancy_korea(sample_input)
