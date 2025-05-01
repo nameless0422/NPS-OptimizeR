@@ -100,11 +100,11 @@ inputs = {
     "sex": "Male",
     "race": "Asian",
     "wbr": "East Asia & Pacific",
-    "drk": 5,
-    "smk": 10,
-    "mpa": 60,
-    "hpa": 30,
-    "hsd": 7,
+    "drk": 0,
+    "smk": 0,
+    "mpa": 120,
+    "hpa": 120,
+    "hsd": 8,
     "sys": "Normal (SBP <120)",
     "bmi": "Normal (18.5–24.9)",
     "hbc": "No",
@@ -121,4 +121,4 @@ inputs = {
     "fcan": "No",
     "falz": "No",
 }
-print(predict_death_age(inputs))
+print(predict_death_age(inputs) + 7)
