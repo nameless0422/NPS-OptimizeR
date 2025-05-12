@@ -51,3 +51,7 @@ This project provides tools for calculating optimal pension claim strategies, re
 **Example:**  
 `[refac] Simplify pension calculation logic`
 
+---
+
+기대수명 산정은 아래 깃허브 오픈소스를 바탕으로 함
+https://github.com/admbrgd/youlldie
