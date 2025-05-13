@@ -2,146 +2,220 @@
 ## 1. 인증 및 사용자 관리
 
 1. **회원가입 / 로그인**
-    
-    - `POST /api/v1/auth/register`
-        
-        - 요청: `{ "username": str, "password": str, … }`
-            
-        - 응답: `201 Created`
-            
-    - `POST /api/v1/auth/login`
-        
-        - 요청: `{ "username": str, "password": str }`
-            
-        - 응답: `{ "access_token": str, "token_type": "bearer" }`
-            
+
+   * `POST /api/v1/auth/register`
+
+     * 요청: `{ "username": str, "password": str, … }`
+     * 응답: `201 Created`
+   * `POST /api/v1/auth/login`
+
+     * 요청: `{ "username": str, "password": str }`
+     * 응답: `{ "access_token": str, "token_type": "bearer" }`
+
 2. **내 정보 조회**
-    
-    - `GET /api/v1/auth/me`
-        
-        - 인증된 토큰 필요
-            
-        - 응답: `{ "user_id": UUID, "username": str, "email": str, … }`
-            
+
+   * `GET /api/v1/auth/me`
+
+     * 인증된 토큰 필요
+     * 응답: `{ "user_id": UUID, "username": str, "email": str, … }`
 
 ---
 
-## 2. 건강 지표 입력 & 계산
+## 2. 건강 지표 입력, 계산 및 조회
 
-- **엔드포인트**  
-    `POST /api/v1/users/me/health`
-    
-- **요청** (`HealthInput` – 앞서 정의한 스키마)
-    
-- **동작**
-    
-    1. 사용자가 보낸 건강 정보 저장
-        
-    2. `calculate_life_expectancy(...)` 호출 → `estimated_death_age` 산출
-        
-    3. DB에 `health_record` 생성 (입력+결과)
-        
-- **응답**
-    
-    ```json
-    {
-      "record_id": UUID,
-      "estimated_death_age": 82.7
-    }
-    ```
-    
-- **이력 조회** (선택)  
-    `GET /api/v1/users/me/health` → 사용자가 과거에 입력·계산한 모든 `health_record` 배열 반환
-    
+* **입력 & 계산**
 
----
+  * `POST /api/v1/users/me/health`
 
-## 3. 재무 지표 입력 & 계산
+    * 요청: `HealthInput` JSON
+    * 동작:
 
-- **엔드포인트**  
-    `POST /api/v1/users/me/finance`
-    
-- **요청** (`FinanceInput`)
-    
-- **동작**
-    
-    1. 사용자가 보낸 재무 정보 저장
-        
-    2. `calculate_economic_score(...)` 호출 → `score` 산출
-        
-    3. DB에 `finance_record` 생성 (입력+결과)
-        
-- **응답**
-    
-    ```json
-    {
-      "record_id": UUID,
-      "score": 7.3
-    }
-    ```
-    
-- **이력 조회** (선택)  
-    `GET /api/v1/users/me/finance` → 모든 `finance_record` 반환
-    
+      1. 건강 정보 저장
+      2. `calculate_life_expectancy(...)` 호출 → `estimated_death_age` 산출
+      3. `health_record` 생성
+    * 응답:
+
+      ```json
+      {
+        "record_id": UUID,
+        "estimated_death_age": 82.7
+      }
+      ```
+
+* **이력 조회 (전체)**
+
+  * `GET /api/v1/users/me/health`
+
+    * 응답:
+
+      ```json
+      [
+        {
+          "record_id": UUID,
+          "cage": 55,
+          …,
+          "estimated_death_age": 82.7,
+          "created_at": "2025-05-13T21:40:00Z"
+        },
+        …
+      ]
+      ```
+
+* **특정 기록 조회**
+
+  * `GET /api/v1/users/me/health/{record_id}`
+
+    * 응답:
+
+      ```json
+      {
+        "record_id": UUID,
+        "cage": 55,
+        …,
+        "estimated_death_age": 82.7,
+        "created_at": "2025-05-13T21:40:00Z"
+      }
+      ```
 
 ---
 
-## 4. 최종 연금 플랜 계산
+## 3. 재무 지표 입력, 계산 및 조회
 
-- **엔드포인트**  
-    `POST /api/v1/users/me/pension`
-    
-- **요청** (`PensionInput` + 선택적 레퍼런스)
-    
-    ```jsonc
-    {
-      // 연금 기본 입력
-      "Identification_number": "650423",
-      "Dependent_parent_count": 1,
-      // ... 기타 필드 ...
-      // (선택) 이전 health/finance 결과 참조
-      "health_record_id": "UUID",
-      "finance_record_id": "UUID"
-    }
-    ```
-    
-- **동작**
-    
-    1. DB에서 `health_record`, `finance_record` 불러오기
-        
-    2. 사망예상나이·경제점수 등 지표를 연금 로직(`plan_pension`)에 투입
-        
-    3. `PensionOutput` 산출 후 저장
-        
-- **응답** (`PensionOutput`)
-    
-    ```json
-    {
-      "payout_type": "정상수급",
-      "adjustment_years": 1,
-      "public_monthly": 300000,
-      "private_monthly": 120000,
-      "private_annual": 1440000,
-      "total_monthly_after_tax": 380000,
-      "pension_start_age": 66
-    }
-    ```
-    
-- **이력 조회**  
-    `GET /api/v1/users/me/pension` → 과거 모든 연금 계산 결과 리스트
-    
+* **입력 & 계산**
+
+  * `POST /api/v1/users/me/finance`
+
+    * 요청: `FinanceInput` JSON
+    * 동작:
+
+      1. 재무 정보 저장
+      2. `calculate_economic_score(...)` 호출 → `score` 산출
+      3. `finance_record` 생성
+    * 응답:
+
+      ```json
+      {
+        "record_id": UUID,
+        "score": 7.3
+      }
+      ```
+
+* **이력 조회 (전체)**
+
+  * `GET /api/v1/users/me/finance`
+
+    * 응답:
+
+      ```json
+      [
+        {
+          "record_id": UUID,
+          "age": 55,
+          …,
+          "score": 7.3,
+          "created_at": "2025-05-13T21:42:00Z"
+        },
+        …
+      ]
+      ```
+
+* **특정 기록 조회**
+
+  * `GET /api/v1/users/me/finance/{record_id}`
+
+    * 응답:
+
+      ```json
+      {
+        "record_id": UUID,
+        "age": 55,
+        …,
+        "score": 7.3,
+        "created_at": "2025-05-13T21:42:00Z"
+      }
+      ```
 
 ---
+
+## 4. 최종 연금 플랜 계산 및 조회
+
+* **계산**
+
+  * `POST /api/v1/users/me/pension`
+
+    * 요청: `PensionInput` JSON
+
+      ```jsonc
+      {
+        "Identification_number": "650423",
+        "Dependent_parent_count": 1,
+        …,
+        "health_record_id": "UUID",      // 선택
+        "finance_record_id": "UUID"      // 선택
+      }
+      ```
+    * 동작:
+
+      1. (선택) `health_record`, `finance_record` 로드
+      2. `plan_pension(...)` 호출 → `PensionOutput` 산출
+      3. `pension_record` 생성
+    * 응답:
+
+      ```json
+      {
+        "payout_type": "정상수급",
+        "adjustment_years": 1,
+        "public_monthly": 300000,
+        "private_monthly": 120000,
+        "private_annual": 1440000,
+        "total_monthly_after_tax": 380000,
+        "pension_start_age": 66
+      }
+      ```
+
+* **이력 조회 (전체)**
+
+  * `GET /api/v1/users/me/pension`
+
+    * 응답:
+
+      ```json
+      [
+        {
+          "record_id": UUID,
+          "payout_type": "정상수급",
+          …,
+          "pension_start_age": 66,
+          "created_at": "2025-05-13T21:45:00Z"
+        },
+        …
+      ]
+      ```
+
+* **특정 기록 조회**
+
+  * `GET /api/v1/users/me/pension/{record_id}`
+
+    * 응답:
+
+      ```json
+      {
+        "record_id": UUID,
+        "payout_type": "정상수급",
+        …,
+        "pension_start_age": 66,
+        "created_at": "2025-05-13T21:45:00Z"
+      }
+      ```
+
+---
+
 ### 요약
 
-1. **인증 → 사용자 정보**
-    
-2. **건강 입력 → 사망예상나이**
-    
-3. **재무 입력 → 경제점수**
-    
-4. **연금 입력 + (건강·재무 결과) → 최종 연금 플랜**
-    
+1. **회원가입/로그인** → 토큰 발급
+2. **POST /users/me/health** → 사망예상나이 계산
+3. **POST /users/me/finance** → 경제점수 계산
+4. **POST /users/me/pension** → 연금플랜 계산 (선택적 health/finance 참조)
 ---
 ### 건강
 #### input
