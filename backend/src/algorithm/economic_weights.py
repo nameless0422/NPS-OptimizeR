@@ -3,8 +3,8 @@ def evaluate_financial_status(data):
     # 입력 변수 설정
     age = data.get("age", 55)
     total_assets = data.get("assets", 0) - data.get("debt", 0)
-    living_expense = data.get("monthly_expense", 0)
-    income = data.get("monthly_income", 0)
+    monthly_living_expense = data.get("monthly_living_expense", 0)
+    monthly_income = data.get("monthly_income", 0)
     is_retired = input("은퇴 여부 (Y/N): ").strip().upper() == 'Y'
     if not is_retired:
         retirement_age = int(input("예상 은퇴 나이: "))
@@ -24,14 +24,14 @@ def evaluate_financial_status(data):
     dependent_expense = dependents * dependent_cost
     housing_expense = 0 if has_own_house else resident_cost
     medical_expense = avg_medical_cost * (1 - insurance_coverage) if has_insurance else avg_medical_cost
-    monthly_expense = living_expense + dependent_expense + housing_expense + medical_expense
+    monthly_expense = monthly_living_expense + dependent_expense + housing_expense + medical_expense
 
     # 은퇴 여부에 따른 자산 변화 및 생존 계산
     if not is_retired and age < retirement_age:
-        monthly_surplus = income - monthly_expense
+        monthly_surplus = monthly_income - monthly_expense
         total_assets += monthly_surplus * (retirement_age - age) * 12
         age = retirement_age
-        income -= work_income
+        monthly_income -= work_income
 
     # 생존 가능 개월 수 계산 (누적 인플레이션 반영)
     remaining_assets = total_assets
@@ -40,7 +40,7 @@ def evaluate_financial_status(data):
     while remaining_assets > 0:
         year = months // 12
         total_expense = monthly_expense * ((1 + inflation_rate) ** year)
-        monthly_deficit = total_expense - income
+        monthly_deficit = total_expense - monthly_income
 
         if monthly_deficit <= 0:
             break
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         'age': int(input("나이: ")), 
         'assets': int(input("자산(원): ")),
         'debt': int(input("부채(원): ")),
-        'monthly_expense': int(input("월 생활비(원): ")), 
+        'monthly_living_expense': int(input("월 생활비(원): ")), 
         'monthly_income': int(input("월 소득(원): ")), 
         'dependents': int(input("부양 가족 수: ")), 
         'has_own_house': input("자가 주거 여부 (Y/N): ").strip().upper() == 'Y', 
