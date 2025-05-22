@@ -155,6 +155,24 @@ def calculate_scenarios(user_info):
 
     return results
 
+def simulate_pension(user_info, health_score: float, finance_score: float):
+    """
+    user_info: dict, 아래 keys를 포함해야 함
+      - Dependent_parent_count, Child_count, Spouse,
+      - Public_pension, Subscription_period, Monthly_insurance_premium,
+      - Annual_income, Non_taxable_payment, Taxable_payment,
+      - Private_pension, Private_subscription_period,
+      - Private_monthly_premium, Private_lump_sum,
+      - Current_age, Pension_start_age
+    health_score: float (예: calculate_life_expectancy)
+    finance_score: float (예: evaluate_financial_status(data)['score'])
+    """
+    # Streamlit용 get_user_info_streamlit() 대신, 인자로 받은 값을 사용
+    ui = user_info.copy()
+    ui["Health_score"] = health_score
+    ui["Finance_score"] = finance_score
+    # 앞서 정의한 calculate_scenarios()를 호출
+    return calculate_scenarios(ui)
 
 def run_simulation(user_info):
     scenarios = calculate_scenarios(user_info)

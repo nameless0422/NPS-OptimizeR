@@ -1,7 +1,8 @@
+# src/NPS_api/pension/urls.py
+
 from django.urls import path
-from .views import PensionCreateView, PensionListView
+from .views import PensionSimulationView
 
 urlpatterns = [
-    path('users/me/pension', PensionCreateView.as_view(), name='pension-create'),
-    path('users/me/pension/list', PensionListView.as_view(), name='pension-list'),
+    path('users/me/pension/simulate', PensionSimulationView.as_view(), name='pension-simulate'),
 ]
