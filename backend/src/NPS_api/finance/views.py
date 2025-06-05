@@ -1,8 +1,10 @@
 from rest_framework import generics, status
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from .models import FinanceRecord
-from .serializers import FinanceInputSerializer, FinanceOutputSerializer
+from .serializers import FinanceInputSerializer, FinanceOutputSerializer, FinanceSimulationSerializer
 from .services import calculate_economic_score_financial
 
 class FinanceCreateView(generics.CreateAPIView):
@@ -42,3 +44,24 @@ class FinanceListView(generics.ListAPIView):
 
     def get_queryset(self):
         return FinanceRecord.objects.filter(user=self.request.user).order_by('-created_at')
+    
+class FinanceSimulationView(GenericAPIView):
+    """
+    POST /api/v1/finance/simulate
+    → 입력된 재무 지표로만 score, living_months 계산 후 반환
+    """
+    serializer_class = FinanceSimulationSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        # 1) 입력 검증
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        # 2) 서비스 함수 호출
+        result = calculate_economic_score_financial(data)
+        # result 예시: {'score': 45.23, 'living_months': 310.5}
+
+        # 3) 결과 리턴
+        return Response(result, status=200)

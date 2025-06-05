@@ -90,7 +90,9 @@ def predict_death_age(
 
     # 9) Normalize probabilities and compute expectation
     df["p_norm"] = df["prob"] / df["prob"].sum()
-    expected_age = (df["p_norm"] * df["age"]).sum()
+    w = 1.0 - df["p_norm"]      # 각 원인의 “(100 – 확률)”에 해당하는 가중치
+    w_norm = w / w.sum()        # 다시 1이 되도록 정규화
+    expected_age = (w_norm * df["age"]).sum()
 
     return float(expected_age)
 

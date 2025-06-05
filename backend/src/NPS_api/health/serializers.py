@@ -10,3 +10,4 @@ class HealthOutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = HealthRecord
         fields = ('id','estimated_death_age','created_at')
+
