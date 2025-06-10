@@ -139,19 +139,159 @@ export default function Step4Result({ userInput }) {
 
       {summaryInfo}
 
-      <div className="section-box">
-        <h2>추천 전략 요약</h2>
-        {best && (
-          <div style={{ fontSize: '16px', lineHeight: '1.8' }}>
-            <strong>{typeLabelShort[best.type]}</strong> 전략이 가장 유리합니다.<br />
-            → {getStrategyReason(best.type, userInput.healthScore, userInput.financialScore)}<br />
-            <strong>{best.startAge}세</strong>부터 수령 시작 → <strong>{formatAmount(best.monthly)}</strong>/월 수령<br />
-            총 세후 수령액: <strong>{best.total.toLocaleString()}만원</strong><br />
-            👉 연금 구성: 국민연금 <strong>{formatAmount(best.publicMonthly)}</strong>, 개인연금 <strong>{formatAmount(best.privateMonthly)}</strong>, 퇴직연금 <strong>{formatAmount(best.retireMonthly)}</strong><br />
-            💰 일시금 기준 합산 총액({includeSeverance ? '퇴직금 포함' : '퇴직금 제외'}): <strong>{formatAmount(lumpSumTotal)}</strong>
-          </div>
-        )}
+      // Step4Result 전략 요약 섹션 최종 리팩토링
+<div className="section-box">
+  <h2>추천 전략 요약</h2>
+  {best && (
+    <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#333' }}>
+      <p>
+        <strong>✅ {typeLabelShort[best.type]} 전략</strong>이 가장 유리합니다.
+        <br />
+        → {getStrategyReason(best.type, userInput.healthScore, userInput.financialScore)}
+      </p>
+
+      {/* 합계 요약 */}
+      <div style={{
+        background: '#f9f9f9',
+        padding: '10px 14px',
+        border: '1px solid #eee',
+        borderRadius: '6px',
+        marginTop: '10px'
+      }}>
+        <strong>💰 총 수령 요약</strong>
+        <ul style={{ marginTop: '6px', paddingLeft: '20px', listStyleType: 'disc' }}>
+          <li><strong>월 협회 수령액:</strong> {formatAmount(best.monthly)}</li>
+          <li><strong>모든 세후 수령 합계:</strong> {best.total.toLocaleString()}만원</li>
+          <li><strong>퇴직금 포함 일시금 합계:</strong> {formatAmount(lumpSumTotal)}</li>
+        </ul>
       </div>
+
+      {/* 선정 방향 반영 배경 */}
+      <div style={{
+        background: '#f6f8fa',
+        padding: '12px 16px',
+        borderRadius: '6px',
+        fontSize: '14px',
+        lineHeight: '1.6',
+        marginTop: '24px'
+      }}>
+        <strong>📘 전략 선정 배경 설명:</strong><br />
+        사용자의 건강 점수는 <strong>{userInput.healthScore}</strong>점, 재정 점수는 <strong>{userInput.financialScore}</strong>점으로 <strong>{userInput.monthlySpending?.toLocaleString() ?? '-'}원</strong> 범위의 살생비 충족이 필요한 상황입니다.
+        <br /><br />
+        이를 고발해 <strong>{typeLabelShort[best.type]}</strong> 전략을 통해 반복 수집이 보다 빠른 협금 후매를 가진하고, 국민연금 <strong>{formatAmount(best.publicMonthly)}</strong>, 개인연금 <strong>{formatAmount(best.privateMonthly)}</strong>을 중심으로 관리합니다.
+        <br />
+        퇴직연금은 수령하지 않고 <strong>퇴직금 일시금으로 별도 수령</strong>됩니다.
+      </div>
+
+      {/* 연금 범위 요약 */}
+      <div style={{
+        background: '#ffffff',
+        padding: '12px 16px',
+        marginTop: '20px',
+        border: '1px solid #e1e4e8',
+        borderRadius: '6px',
+        fontSize: '14px',
+        lineHeight: '1.6'
+      }}>
+        <strong>✔️ 연금별 수령 시점 및 수령액</strong>
+        <ul style={{ marginTop: '8px', paddingLeft: '20px', listStyleType: 'square' }}>
+          <li>
+            <strong>국민연금:</strong> {
+              (() => {
+                const birthYear = new Date().getFullYear() - userInput.age;
+                let startAge = 60;
+                if (birthYear >= 1953 && birthYear <= 1956) startAge = 61;
+                else if (birthYear >= 1957 && birthYear <= 1960) startAge = 62;
+                else if (birthYear >= 1961 && birthYear <= 1964) startAge = 63;
+                else if (birthYear >= 1965 && birthYear <= 1968) startAge = 64;
+                else if (birthYear >= 1969) startAge = 65;
+                return (
+                  <>
+                    {' '}{startAge}세 시작 → {formatAmount(best.publicMonthly)} / 월<br />
+                    <span style={{ fontSize: '12px', color: '#666' }}>
+                      ⓘ {birthYear}년생은 국민연금 시작나이가 {startAge}세입니다.
+                    </span>
+                  </>
+                );
+              })()
+            }
+          </li>
+
+          {userInput.hasPrivatePension && (
+            <li>
+              <strong>개인연금:</strong> 55세 시작 → {formatAmount(best.privateMonthly)} / 월<br />
+              <span style={{ fontSize: '12px', color: '#666' }}>
+                ⓘ 일반적으로 55세부터 수령가능합니다.
+              </span>
+            </li>
+          )}
+
+          {best.retireMonthly > 0 ? (
+            <li>
+              <strong>퇴직연금:</strong> {best.startAge}세 시작 → {formatAmount(best.retireMonthly)} / 월
+            </li>
+          ) : (
+            <li>
+              <strong>퇴직연금:</strong> 수령하지 않음<br />
+              <span style={{ fontSize: '12px', color: '#666' }}>
+                ⓘ 퇴직금 일시금 별도 수령: <strong>{formatAmount(userInput.retireInfo?.retirementPay ?? 0)}</strong>
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  )}
+</div>
+
+
+<div className="section-box">
+  <h2>📘 수령 전략 해설</h2>
+  <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>
+    사용자의 입력정보 및 기대수명을 바탕으로 다음과 같이 수령 전략이 구성되었습니다.
+  </p>
+
+  <ul style={{ fontSize: '14px', lineHeight: '1.8', paddingLeft: '20px' }}>
+    <li>
+      <strong>국민연금</strong>: {userInput.nationalPeriod}년 동안 월 {userInput.nationalPremium}만원 납입<br />
+      → 이를 기준으로 <strong>{typeLabelShort[best.type]}</strong> 전략에 따라 월 <strong>{formatAmount(best.publicMonthly)}</strong> 수령으로 조정되었습니다.
+      <br />
+      <span style={{ color: '#666' }}>
+        ※ 조기 수령 시 최대 -30%, 연기 수령 시 최대 +36% 조정률이 반영됩니다.
+      </span>
+    </li>
+
+    {userInput.hasPrivatePension && (
+      <li style={{ marginTop: '10px' }}>
+        <strong>개인연금</strong>: {userInput.privatePeriod}년 동안 월 {userInput.privatePremium}만원 납입<br />
+        → 평균 수령액으로 월 <strong>{formatAmount(best.privateMonthly)}</strong> 설정되었습니다.
+        <br />
+        <span style={{ color: '#666' }}>
+          ※ 일정 수익률 기반의 고정 수령으로 가정하고 계산되었습니다.
+        </span>
+      </li>
+    )}
+
+    {userInput.retireInfo && (
+      <li style={{ marginTop: '10px' }}>
+        <strong>퇴직연금</strong>: 총 퇴직금 <strong>{formatAmount(userInput.retireInfo.retirementPay)}</strong> 추정<br />
+        → <strong>{userInput.retireInfo.receiveYears}</strong>년간 월 <strong>{formatAmount(userInput.retireInfo.monthlyPension)}</strong>씩 분할 수령
+        <br />
+        <span style={{ color: '#666' }}>
+          ※ 퇴직금 일시금 대신 연금화하여 전체 월 수령액 안정성 확보
+        </span>
+      </li>
+    )}
+  </ul>
+
+  <hr style={{ margin: '20px 0' }} />
+
+  <p style={{ fontSize: '14px', color: '#444' }}>
+    ✔️ <strong>{typeLabelShort[best.type]}</strong> 전략은 <strong>{userInput.healthScore}점</strong>의 건강 점수와 <strong>{userInput.financialScore}점</strong>의 재정 점수,
+    그리고 <strong>{userInput.expectedDeathAge}세</strong>의 기대수명을 고려할 때 가장 효율적인 선택으로 판단됩니다.
+  </p>
+</div>
+
 
       <div className="section-box">
         <h2>전략별 총 수령액 비교 (TOP 3)</h2>
