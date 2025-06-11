@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import Step0StartPage from './Page/Step0StartPage';
 import Step1BasicInfo from './Page/Step1BasicInfo';
 import Step2Health from './Page/Step2Health';
 import Step3Finance from './Page/Step3Finance';
@@ -14,13 +15,20 @@ import PrivatePensionInfo from './forms/PrivatePensionInfo';
 function StepRouterWrapper() {
   const navigate = useNavigate();
   const [userInput, setUserInput] = useState({});
-  const methods = useForm(); // ✅ useForm 생성
+  const methods = useForm();
 
   return (
-    <FormProvider {...methods}> {/* ✅ 모든 Steps에 form context 적용 */}
+    <FormProvider {...methods}>
       <Routes>
         <Route
           path="/"
+          element={
+            <Step0StartPage />
+          }
+        />
+
+        <Route
+          path="/step1"
           element={
             <Step1BasicInfo
               onNext={(data) => {
@@ -58,7 +66,10 @@ function StepRouterWrapper() {
           }
         />
 
-        <Route path="/step4" element={<Step4Result userInput={userInput} />} />
+        <Route
+          path="/step4"
+          element={<Step4Result userInput={userInput} />}
+        />
 
         {/* 팝업용 */}
         <Route path="/national-pension-info" element={<NationalPensionInfo />} />
