@@ -1,4 +1,3 @@
-// Step3Finance.jsx - 리팩토링 버전 (단위 정렬 및 버튼 시각 오류 수정)
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Stepper from '../components/Stepper';
